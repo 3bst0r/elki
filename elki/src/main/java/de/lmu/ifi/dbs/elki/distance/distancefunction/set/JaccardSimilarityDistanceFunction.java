@@ -25,6 +25,7 @@ package de.lmu.ifi.dbs.elki.distance.distancefunction.set;
 import de.lmu.ifi.dbs.elki.data.BitVector;
 import de.lmu.ifi.dbs.elki.data.FeatureVector;
 import de.lmu.ifi.dbs.elki.data.NumberVector;
+import de.lmu.ifi.dbs.elki.data.SparseNumberVector;
 import de.lmu.ifi.dbs.elki.data.type.SimpleTypeInformation;
 import de.lmu.ifi.dbs.elki.data.type.TypeUtil;
 import de.lmu.ifi.dbs.elki.database.query.DistanceSimilarityQuery;
@@ -77,6 +78,9 @@ public class JaccardSimilarityDistanceFunction<O extends FeatureVector<?>> exten
   public double similarity(O o1, O o2) {
     if(o1 instanceof BitVector && o2 instanceof BitVector) {
       return ((BitVector) o1).jaccardSimilarity((BitVector) o2);
+    }
+    if(o1 instanceof SparseNumberVector && o2 instanceof SparseNumberVector) {
+      return similaritySparseNumberVector((SparseNumberVector) o1, (SparseNumberVector) o2);
     }
     if(o1 instanceof NumberVector && o2 instanceof NumberVector) {
       return similarityNumberVector((NumberVector) o1, (NumberVector) o2);
@@ -150,6 +154,41 @@ public class JaccardSimilarityDistanceFunction<O extends FeatureVector<?>> exten
     for(; d < d2; d++) {
       if(o2.doubleValue(d) != 0) {
         ++union;
+      }
+    }
+    return intersection / (double) union;
+  }
+
+  /**
+   * Compute Jaccard similarity for two sparse number vectors.
+   *
+   * @param v1 First vector
+   * @param v2 Second vector
+   * @return Jaccard similarity
+   */
+  public static double similaritySparseNumberVector(SparseNumberVector v1, SparseNumberVector v2) {
+    // Get the bit masks
+    int i1 = v1.iter(), i2 = v2.iter();
+    int union = 0;
+    int intersection = 0;
+    while(v1.iterValid(i1) && v2.iterValid(i2)) {
+      final int d1 = v1.iterDim(i1), d2 = v2.iterDim(i2);
+      if(d1 < d2) {
+        // In first only
+        union++;
+        i1 = v1.iterAdvance(i1);
+      }
+      else if(d2 < d1) {
+        // In second only
+        union++;
+        i2 = v2.iterAdvance(i2);
+      }
+      else {
+        // Both vectors have a value.
+        intersection++;
+        union++;
+        i1 = v1.iterAdvance(i1);
+        i2 = v2.iterAdvance(i2);
       }
     }
     return intersection / (double) union;
