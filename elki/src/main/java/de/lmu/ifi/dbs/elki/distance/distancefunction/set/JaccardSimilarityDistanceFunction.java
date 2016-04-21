@@ -191,6 +191,13 @@ public class JaccardSimilarityDistanceFunction<O extends FeatureVector<?>> exten
         i2 = v2.iterAdvance(i2);
       }
     }
+    // Count remaining values
+    for(; v1.iterValid(i1); i1 = v1.iterAdvance(i1)) {
+      union++;
+    }
+    for(; v2.iterValid(i2); i2 = v2.iterAdvance(i2)) {
+      union++;
+    }
     return intersection / (double) union;
   }
 
