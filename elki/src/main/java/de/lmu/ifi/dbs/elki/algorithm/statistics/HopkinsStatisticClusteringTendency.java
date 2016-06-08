@@ -89,7 +89,7 @@ public class HopkinsStatisticClusteringTendency extends AbstractNumberVectorDist
   /**
    * The logger for this class.
    */
-  private static final Logging LOG = Logging.getLogger(HopkinsStatisticClusteringTendency.class);
+  protected static final Logging LOG = Logging.getLogger(HopkinsStatisticClusteringTendency.class);
 
   /**
    * The parameter sampleSizes
@@ -358,12 +358,12 @@ public class HopkinsStatisticClusteringTendency extends AbstractNumberVectorDist
     /**
      * Stores the maximum in each dimension.
      */
-    private double[] maxima = null;
+    protected double[] maxima = null;
 
     /**
      * Stores the minimum in each dimension.
      */
-    private double[] minima = null;
+    protected double[] minima = null;
 
     @Override
     protected void makeOptions(Parameterization config) {

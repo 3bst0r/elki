@@ -175,28 +175,29 @@ public class JaccardSimilarityDistanceFunction<O extends FeatureVector<?>> exten
       final int d1 = v1.iterDim(i1), d2 = v2.iterDim(i2);
       if(d1 < d2) {
         // In first only
-        union++;
+        if (v1.iterIntValue(i1) != 0) union++;
         i1 = v1.iterAdvance(i1);
       }
       else if(d2 < d1) {
         // In second only
-        union++;
+        if (v2.iterIntValue(i2) != 0) union++;
         i2 = v2.iterAdvance(i2);
       }
       else {
         // Both vectors have a value.
-        intersection++;
-        union++;
+        int v1Val = v1.iterIntValue(i1), v2Val = v2.iterIntValue(i2);
+        if (v1Val != 0 && v1Val == v2Val) intersection++;
+        if (v1Val != 0 || v2Val != 0) union++;
         i1 = v1.iterAdvance(i1);
         i2 = v2.iterAdvance(i2);
       }
     }
     // Count remaining values
     for(; v1.iterValid(i1); i1 = v1.iterAdvance(i1)) {
-      union++;
+      if (v1.iterIntValue(i1) != 0) union++;
     }
     for(; v2.iterValid(i2); i2 = v2.iterAdvance(i2)) {
-      union++;
+      if (v2.iterIntValue(i2) != 0) union++;
     }
     return intersection / (double) union;
   }
@@ -210,6 +211,9 @@ public class JaccardSimilarityDistanceFunction<O extends FeatureVector<?>> exten
   public double distance(NumberVector o1, NumberVector o2) {
     if(o1 instanceof BitVector && o2 instanceof BitVector) {
       return 1. - ((BitVector) o1).jaccardSimilarity((BitVector) o2);
+    }
+    if (o1 instanceof SparseNumberVector && o2 instanceof SparseNumberVector) {
+      return 1. - similaritySparseNumberVector((SparseNumberVector) o1, (SparseNumberVector) o2);
     }
     return 1. - similarityNumberVector(o1, o2);
   }
